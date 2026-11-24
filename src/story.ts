@@ -1,5 +1,5 @@
 // The scroll story. One pinned stage, one timeline scrubbed by scroll.
-// Times are in "scenes": roughly one screen of scrolling per unit.
+// Times are in "scenes". The whole timeline is spread over STORY_LENGTH.
 
 import { gsap } from 'gsap'
 
@@ -7,7 +7,7 @@ const vw = (n: number) => () => (window.innerWidth * n) / 100
 const vh = (n: number) => () => (window.innerHeight * n) / 100
 
 // Scroll length of the whole story, as a share of the screen height.
-const STORY_LENGTH = '+=1000%'
+const STORY_LENGTH = '+=550%'
 
 function addScenery(tl: gsap.core.Timeline): void {
   tl
@@ -64,7 +64,8 @@ export function buildStory(isCalm: boolean): void {
       start: 'top top',
       end: STORY_LENGTH,
       pin: true,
-      scrub: isCalm ? true : 0.8,
+      // A short catch-up. Longer feels like lag on a phone.
+      scrub: isCalm ? true : 0.35,
       invalidateOnRefresh: true,
     },
   })

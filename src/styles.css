@@ -15,7 +15,7 @@
   --gold: #c9a35a;
   --ink: #3e2e22;
   --ink-soft: #6b5643;
-  --paper: rgb(255 250 240 / 0.84);
+  --paper: rgb(255 250 240 / 0.94);
   --white: #fff;
   --text-shadow: 0 1px 2px rgb(30 50 90 / 0.3), 0 4px 28px rgb(30 50 90 / 0.4);
 
@@ -47,17 +47,6 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 
 .sprite { position: absolute; width: 0; height: 0; }
 
-/* Paper grain over everything, so the vector art does not look plastic. */
-body::after {
-  content: '';
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-  opacity: 0.16;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 
 .stage {
   position: relative;
@@ -68,6 +57,9 @@ body::after {
 .sky, .clouds, .mountains, .warmth, .gate, .flowers, .petals, .frame, .beats { position: absolute; inset: 0; pointer-events: none; }
 .sun, .rays, .dove { position: absolute; pointer-events: none; }
 .beats { pointer-events: auto; }
+
+/* Layers that move on scroll are drawn once, then only moved. */
+.cloud, .mtn, .gate, .column, .garland, .dove, .flowers, .flowers__side, .beat, .reveal { will-change: transform, opacity; }
 
 /* Sky and light */
 .sky {
@@ -89,13 +81,11 @@ body::after {
   aspect-ratio: 1;
   background: repeating-conic-gradient(rgb(255 238 205 / 0.3) 0deg 3deg, transparent 3deg 11deg);
   mask-image: radial-gradient(circle, #000 0, transparent 55%);
-  filter: blur(6px);
-  opacity: 0.7;
+  opacity: 0.4;
 }
 .warmth {
-  background: radial-gradient(ellipse at 85% 5%, rgb(255 205 150 / 0.6), transparent 60%);
-  mix-blend-mode: soft-light;
-  opacity: 0.5;
+  background: radial-gradient(ellipse at 85% 5%, rgb(255 214 165 / 0.35), transparent 60%);
+  opacity: 0.4;
 }
 
 /* Clouds */
@@ -138,7 +128,6 @@ body::after {
   height: var(--col-h);
   display: flex;
   flex-direction: column;
-  filter: drop-shadow(-10px 12px 16px rgb(60 50 40 / 0.2));
 }
 .column--l { left: calc(50% - var(--half) - var(--col-w) / 2); }
 .column--r { right: calc(50% - var(--half) - var(--col-w) / 2); }
@@ -162,7 +151,7 @@ body::after {
 
 /* Doves */
 .dove { top: calc(var(--gate-top) - var(--dove-w) * 0.9); width: var(--dove-w); }
-.dove svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 6px 8px rgb(60 80 110 / 0.18)); }
+.dove svg { display: block; width: 100%; height: auto; overflow: visible; }
 .dove--l { left: calc(50% - var(--dove-w) - 4px); }
 .dove--r { left: calc(50% + 4px); }
 .dove--r svg { transform: scaleX(-1); }
@@ -172,7 +161,7 @@ body::after {
 .flowers__side { position: absolute; bottom: -2svh; width: clamp(220px, 42vw, 560px); height: auto; overflow: visible; }
 .flowers__side--l { left: -4vw; }
 .flowers__side--r { right: -4vw; transform: scaleX(-1); }
-.bloom { transform-box: fill-box; transform-origin: 50% 100%; }
+.flowers__side { transform-origin: 50% 100%; }
 .butterfly { position: absolute; width: clamp(22px, 3vw, 36px); }
 .butterfly svg { display: block; width: 100%; height: auto; overflow: visible; }
 .butterfly--a { left: 22vw; bottom: 30svh; }
@@ -306,7 +295,6 @@ body::after {
   gap: 0.35rem;
   color: var(--ink);
   background: var(--paper);
-  backdrop-filter: blur(10px);
   border: 1px solid rgb(201 163 90 / 0.55);
   outline: 1px solid rgb(201 163 90 / 0.35);
   outline-offset: -8px;
@@ -343,11 +331,11 @@ body::after {
 
 /* Ambient motion. Small, slow, and off when the visitor asks for less motion. */
 @media (prefers-reduced-motion: no-preference) {
-  .rays { animation: spin 180s linear infinite; }
   .cloud svg { animation: drift 16s var(--ease) infinite alternate; }
   .cloud--c svg, .cloud--b svg { animation-duration: 21s; animation-delay: -7s; }
   .strand { transform-box: fill-box; transform-origin: 50% 0; animation: sway 4.6s var(--ease) infinite alternate; }
-  .bloom { animation: nod 5.4s var(--ease) infinite alternate; }
+  .flowers__side { animation: nod 6s var(--ease) infinite alternate; }
+  .flowers__side--r { animation-delay: -3s; }
   .wing--front { animation: flap 0.9s var(--ease) infinite alternate; }
   .wing--back { animation: flap 0.9s var(--ease) -0.15s infinite alternate; }
   .butterfly { animation: flutter 11s var(--ease) infinite alternate; }
@@ -358,10 +346,14 @@ body::after {
   .hint::after { animation: pulse 2.4s var(--ease) infinite; }
 }
 
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .rays { animation: spin 180s linear infinite; }
+}
+
 @keyframes spin { to { rotate: 360deg; } }
 @keyframes drift { to { translate: 22px 0; } }
 @keyframes sway { from { rotate: -2.5deg; } to { rotate: 2.5deg; } }
-@keyframes nod { from { rotate: -2deg; } to { rotate: 2deg; } }
+@keyframes nod { from { rotate: -1.2deg; } to { rotate: 1.2deg; } }
 @keyframes flap { to { scale: 1 -0.35; } }
 @keyframes beat { to { scale: 0.3 1; } }
 @keyframes flutter {

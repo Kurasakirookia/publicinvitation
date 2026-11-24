@@ -151,10 +151,9 @@ function flowers(seed: number): string {
   for (let i = 0; i < 14; i++) {
     const x = 10 + rand() * 300
     const y = 150 + rand() * 160 + x * 0.12
-    const delay = round(-rand() * 5)
-    blooms += `<g class="bloom" style="animation-delay:${delay}s">${flower(x, y, 22 + rand() * 26, rand() * 72)}</g>`
+    blooms += flower(x, y, 22 + rand() * 26, rand() * 72)
   }
-  return `<g class="bloom" style="animation-delay:-2s">${leaves}</g>${blooms}`
+  return leaves + blooms
 }
 
 function dove(): string {
