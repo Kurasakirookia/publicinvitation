@@ -21,14 +21,15 @@ function addScenery(tl: gsap.core.Timeline): void {
     .from('.ledge', { yPercent: 100, duration: 0.9 }, 2.1)
     .from('.column--l', { x: vw(-55), duration: 1.4, ease: 'power3.out' }, 2.3)
     .from('.column--r', { x: vw(55), duration: 1.4, ease: 'power3.out' }, 2.3)
-    .from('.garland', { yPercent: -170, duration: 1, ease: 'power2.out' }, 3.5)
-    // 4: one dove from each side, meeting above the gate.
-    .from('.dove--l', { x: vw(-60), y: vh(22), duration: 1.4, ease: 'power1.out' }, 5.2)
-    .from('.dove--r', { x: vw(60), y: vh(28), duration: 1.4, ease: 'power1.out' }, 5.2)
+    // Start a full screen-height above, so it is hidden whatever the pillar height.
+    .from('.garland', { y: vh(-75), duration: 1, ease: 'power2.out' }, 3.5)
+    // 4: one dove from each side, meeting face to face above the gate.
+    .from('.dove--l', { x: vw(-70), y: vh(22), rotate: -14, duration: 1.5, ease: 'power2.out' }, 5.0)
+    .from('.dove--r', { x: vw(70), y: vh(-18), rotate: 14, duration: 1.5, ease: 'power2.out' }, 5.0)
     // 5: we pass through the gate into warm light and flowers.
     .to('.gate', { scale: 2.6, autoAlpha: 0, duration: 1.4, ease: 'power2.in' }, 7.6)
-    .to('.dove--l', { x: vw(-45), y: vh(-30), duration: 1.2, ease: 'power1.in' }, 7.6)
-    .to('.dove--r', { x: vw(45), y: vh(-30), duration: 1.2, ease: 'power1.in' }, 7.6)
+    .to('.dove--l', { x: vw(-40), y: vh(-50), duration: 1.2, ease: 'power1.in' }, 7.6)
+    .to('.dove--r', { x: vw(40), y: vh(-50), duration: 1.2, ease: 'power1.in' }, 7.6)
     .to('.mountains', { scale: 1.12, duration: 1.4 }, 7.6)
     .to('.clouds', { scale: 1.1, duration: 1.4 }, 7.6)
     .to('.warmth', { opacity: 1, duration: 1.4 }, 7.6)
@@ -43,9 +44,10 @@ function addWords(tl: gsap.core.Timeline, isCalm: boolean): void {
     tl.to(target, { autoAlpha: 0, y: -lift, duration: 0.4, ease: 'power2.in' }, at)
 
   hide('.beat--1', 0.5)
+  show('.beat--2', 1.3)
   show('.beat--2 .line:nth-child(1)', 1.3)
   show('.beat--2 .line:nth-child(2)', 3.1)
-  hide('.beat--2 .line', 4.1)
+  hide('.beat--2', 4.1)
   show('.beat--3', 4.4)
   hide('.beat--3', 5.7)
   show('.beat--4', 6.1)
@@ -64,8 +66,9 @@ export function buildStory(isCalm: boolean): void {
       start: 'top top',
       end: STORY_LENGTH,
       pin: true,
-      // A short catch-up. Longer feels like lag on a phone.
-      scrub: isCalm ? true : 0.35,
+      // Follow the finger exactly. Lenis already smooths the wheel on desktop,
+      // and any extra catch-up reads as lag on a phone.
+      scrub: true,
       invalidateOnRefresh: true,
     },
   })

@@ -41,6 +41,28 @@
         </linearGradient>
         <filter id="soft-lg" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="4" /></filter>
         <filter id="soft-sm" x="-20%" y="-30%" width="140%" height="160%"><feGaussianBlur stdDeviation="1.2" /></filter>
+        <linearGradient id="feather" x1="0" x2="1">
+          <stop offset="0" stop-color="#dcd7cf" />
+          <stop offset=".35" stop-color="#f4f2ee" />
+          <stop offset="1" stop-color="#ffffff" />
+        </linearGradient>
+        <linearGradient id="feather-shade" x1="0" x2="1">
+          <stop offset="0" stop-color="#bfc5cf" />
+          <stop offset="1" stop-color="#e6e8ed" />
+        </linearGradient>
+        <linearGradient id="dove-body" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#ffffff" />
+          <stop offset=".55" stop-color="#f2f1ee" />
+          <stop offset="1" stop-color="#cdd2da" />
+        </linearGradient>
+        <radialGradient id="dove-glow">
+          <stop offset="0" stop-color="#fff6e4" stop-opacity=".9" />
+          <stop offset="1" stop-color="#fff6e4" stop-opacity="0" />
+        </radialGradient>
+        <radialGradient id="dove-shade">
+          <stop offset="0" stop-color="#8f98a6" stop-opacity=".45" />
+          <stop offset="1" stop-color="#8f98a6" stop-opacity="0" />
+        </radialGradient>
         <linearGradient id="mtn-far" x1="0" x2="1">
           <stop offset="0" stop-color="#b3bfd6" />
           <stop offset="1" stop-color="#dcdfeb" />
@@ -108,11 +130,11 @@
             <div class="shaft"></div>
             <svg class="base"><use href="#base" /></svg>
           </div>
-          <svg class="garland" data-art="garland" viewBox="0 0 680 300"></svg>
+          <div class="garland" data-art="garland"></div>
         </div>
 
-        <div class="dove dove--l"><svg data-art="dove" viewBox="0 0 140 90"></svg></div>
-        <div class="dove dove--r"><svg data-art="dove" viewBox="0 0 140 90"></svg></div>
+        <div class="dove dove--l"><div class="dove__art" data-art="dove"></div></div>
+        <div class="dove dove--r"><div class="dove__art" data-art="dove"></div></div>
 
         <div class="flowers">
           <svg class="flowers__side flowers__side--l" data-art="flowers" data-seed="11" viewBox="0 0 420 320"></svg>
@@ -133,39 +155,39 @@
         <div class="beats">
           <section class="beat beat--1">
             <svg class="lotus" aria-hidden="true"><use href="#lotus" /></svg>
-            <p class="label">|| Shri Ganeshaya Namah ||</p>
+            <p class="label invocation">|| Shri Ganeshaya Namah ||</p>
             <p class="hint label" aria-hidden="true">Scroll</p>
           </section>
 
-          <section class="beat beat--2">
-            <p class="line reveal">Two families.</p>
-            <p class="line reveal">One doorway.</p>
-          </section>
+          <!-- The doorway: between the pillars, below the garland, above the ledge. -->
+          <div class="doorway">
+            <section class="beat beat--2 reveal">
+              <p class="line reveal">Two families.</p>
+              <p class="line reveal">One doorway.</p>
+            </section>
 
-          <section class="beat beat--3 reveal">
-            <p class="lead">You are cordially invited to the</p>
-            <h1 class="display">Engagement</h1>
-            <p class="label">Ceremony</p>
-          </section>
+            <section class="beat beat--3 reveal">
+              <p class="lead">You are cordially invited to the</p>
+              <h1 class="display">Engagement</h1>
+              <p class="label">Ceremony</p>
+            </section>
 
-          <section class="beat beat--4 reveal">
-            <p class="lead">of</p>
-            <h2 class="names"><span class="name">Anusha Yadav R</span> <span class="amp">&amp;</span> <span class="name">Hemanth N</span></h2>
-          </section>
+            <section class="beat beat--4 reveal">
+              <p class="lead">of</p>
+              <h2 class="names"><span class="name">Anusha Yadav R</span> <span class="amp">&amp;</span> <span class="name">Hemanth N</span></h2>
+            </section>
+
+          </div>
 
           <section class="beat beat--5 reveal">
-            <svg class="rings" viewBox="0 0 160 90" aria-hidden="true">
-              <ellipse cx="62" cy="52" rx="32" ry="28" fill="none" stroke="url(#gold)" stroke-width="7" />
-              <ellipse cx="98" cy="46" rx="32" ry="28" fill="none" stroke="url(#gold)" stroke-width="5" />
-              <path d="M98 12L104 18 98 24 92 18Z" fill="#fffaf0" stroke="#c9a35a" />
-            </svg>
+            <img class="rings" src="/src/assets/rings.webp" width="224" height="195" alt="" />
             <div class="card">
               <p class="label">Wednesday</p>
               <p class="card__date">02<sup>nd</sup> December 2026</p>
               <p class="card__time">10:45 AM to 11:45 AM</p>
               <svg class="card__lotus" aria-hidden="true"><use href="#lotus" /></svg>
               <p class="card__venue">Shubha Arambha</p>
-              <a class="card__map" href="https://www.google.com/maps/search/?api=1&amp;query=Shubha+Arambha" target="_blank" rel="noopener">Open in Maps</a>
+              <a class="card__map" href="https://share.google/D5S7k8OjVlgE7gXYc" target="_blank" rel="noopener">Open in Maps</a>
               <p class="card__blessing reveal">We would be delighted to have your presence and blessings on this special occasion.</p>
             </div>
           </section>

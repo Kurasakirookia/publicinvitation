@@ -17,7 +17,9 @@
   --ink-soft: #6b5643;
   --paper: rgb(255 250 240 / 0.94);
   --white: #fff;
-  --text-shadow: 0 1px 2px rgb(30 50 90 / 0.3), 0 4px 28px rgb(30 50 90 / 0.4);
+  /* A tight edge for crispness, then a soft halo for lift off the sky. */
+  --text-shadow: 0 1px 1px rgb(15 30 60 / 0.55), 0 2px 10px rgb(15 30 60 / 0.4), 0 8px 36px rgb(15 30 60 / 0.45);
+  --scrim: radial-gradient(closest-side, rgb(25 45 85 / 0.12), transparent);
 
   --font-display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;
   --font-serif: 'Bodoni Moda Variable', Georgia, serif;
@@ -26,9 +28,11 @@
   --col-w: clamp(46px, 11vw, 150px);
   --half: min(42vw, 330px);
   --ledge: 9svh;
-  --col-h: 74svh;
+  --col-h: 66svh;
   --gate-top: calc(100svh - var(--ledge) - var(--col-h));
-  --dove-w: clamp(80px, 9vw, 120px);
+  --dove-w: clamp(112px, 11vw, 150px);
+  /* How far the inner garland strands hang below the pillar tops. */
+  --strand-drop: calc(var(--half) * 0.62);
 
   --ease: cubic-bezier(0.45, 0, 0.55, 1);
 }
@@ -59,7 +63,7 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 .beats { pointer-events: auto; }
 
 /* Layers that move on scroll are drawn once, then only moved. */
-.cloud, .mtn, .gate, .column, .garland, .dove, .flowers, .flowers__side, .beat, .reveal { will-change: transform, opacity; }
+.cloud, .mtn, .gate, .column, .garland, .strand, .dove, .flowers, .flowers__side, .beat, .reveal { will-change: transform, opacity; }
 
 /* Sky and light */
 .sky {
@@ -91,7 +95,7 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 /* Clouds */
 .cloud { position: absolute; width: clamp(250px, 42vw, 620px); }
 .cloud svg { display: block; width: 100%; height: auto; overflow: visible; }
-.cloud--a { left: -16vw; top: 18svh; }
+.cloud--a { left: -16vw; top: 6svh; }
 .cloud--b { left: -20vw; top: 42svh; width: clamp(150px, 30vw, 440px); }
 .cloud--c { right: -18vw; top: 10svh; }
 .cloud--d { right: -14vw; top: 34svh; width: clamp(150px, 28vw, 420px); }
@@ -145,17 +149,25 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
   left: calc(50% - var(--half));
   width: calc(var(--half) * 2);
   top: calc(var(--gate-top) - 4px);
-  height: auto;
-  overflow: visible;
+  aspect-ratio: 680 / 300;
 }
+.garland > svg { position: absolute; overflow: visible; }
+.garland__swag { inset: 0; width: 100%; height: 100%; }
+.strand { transform-origin: 50% 0; }
 
-/* Doves */
-.dove { top: calc(var(--gate-top) - var(--dove-w) * 0.9); width: var(--dove-w); }
-.dove svg { display: block; width: 100%; height: auto; overflow: visible; }
-.dove--l { left: calc(50% - var(--dove-w) - 4px); }
-.dove--r { left: calc(50% + 4px); }
-.dove--r svg { transform: scaleX(-1); }
-.wing { transform-box: fill-box; transform-origin: 70% 100%; }
+/* Doves: they meet face to face above the middle of the garland,
+   the right one a little higher, like the reference pair. */
+.dove { width: var(--dove-w); }
+.dove__art { position: relative; aspect-ratio: 200 / 160; }
+.dove__art > svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.dove--l { left: calc(50% - var(--dove-w) * 0.97); top: calc(var(--gate-top) - var(--dove-w) * 0.74); }
+.dove--r { left: calc(50% - var(--dove-w) * 0.03); top: calc(var(--gate-top) - var(--dove-w) * 0.94); }
+.dove--l .dove__art { rotate: -10deg; }
+.dove--r .dove__art { transform: scaleX(-1); rotate: 12deg; }
+/* Pivot at each shoulder: (112, 72) and (126, 70) in the 200 x 160 box. */
+.wing { will-change: transform; }
+.wing--near { transform-origin: 56% 45%; }
+.wing--far { transform-origin: 63% 43.75%; }
 
 /* Foreground flowers */
 .flowers__side { position: absolute; bottom: -2svh; width: clamp(220px, 42vw, 560px); height: auto; overflow: visible; }
@@ -225,12 +237,22 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
   padding: 0 1rem;
   text-align: center;
   text-shadow: var(--text-shadow);
+  isolation: isolate;
 }
+/* A faint dark glow behind each block of words, so white reads on light sky. */
+.beat::before {
+  content: '';
+  position: absolute;
+  inset: 22% -10%;
+  z-index: -1;
+  background: var(--scrim);
+}
+.beat--5::before { display: none; }
 .js .reveal { visibility: hidden; opacity: 0; }
 
 .label {
   font-family: var(--font-display);
-  font-weight: 450;
+  font-weight: 500;
   font-size: clamp(0.9rem, 2.2vw, 1.1rem);
   letter-spacing: 0.32em;
   text-transform: uppercase;
@@ -238,32 +260,48 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 .lead { font-style: italic; font-weight: 500; font-size: clamp(1.15rem, 3.6vw, 1.7rem); }
 .display {
   font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(3.4rem, 14vw, 9rem);
+  font-weight: 400;
+  font-size: min(clamp(3.4rem, 14vw, 9rem), 15svh);
   line-height: 0.9;
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
 .line {
   font-family: var(--font-display);
-  font-weight: 300;
-  font-size: clamp(2.8rem, 12vw, 7.5rem);
+  font-weight: 400;
+  font-size: min(clamp(2.6rem, 11vw, 5.5rem), 12svh);
   line-height: 0.95;
   text-transform: uppercase;
 }
 .names {
   max-width: calc(var(--half) * 2 - var(--col-w) - 1rem);
   font-style: italic;
-  font-size: clamp(1.7rem, 6.8vw, 3.9rem);
+  font-weight: 620;
+  /* Bodoni's hairlines stay thin at any weight; a fine outline thickens them. */
+  -webkit-text-stroke: 0.4px currentColor;
+  text-shadow: 0 1px 1px rgb(15 30 60 / 0.65), 0 2px 12px rgb(15 30 60 / 0.5), 0 10px 40px rgb(15 30 60 / 0.55);
+  font-size: min(clamp(1.7rem, 6.8vw, 3.9rem), 7svh);
   line-height: 1.05;
 }
 .name { display: block; white-space: nowrap; }
-.beat--4 { padding-top: 14svh; }
+/* Every gate scene's words share this box and sit dead center in it:
+   between the pillars, below the garland strands, above the ledge. */
+.doorway {
+  position: absolute;
+  top: calc(var(--gate-top) + var(--strand-drop) + 0.5rem);
+  bottom: var(--ledge);
+  left: calc(50% - var(--half) + var(--col-w) / 2);
+  right: calc(50% - var(--half) + var(--col-w) / 2);
+}
+.doorway .beat { padding: 0 0.4rem 14svh; }
 .amp { display: block; font-size: 0.55em; margin: 0.2em 0; }
 
-.beat--1 { align-content: start; padding-top: 30svh; }
+/* Opening: centered in the upper sky, clear of the mountains. */
+.beat--1 { padding-bottom: 30svh; }
+.beat--1::before { inset: 22svh -5% 52svh; }
+.invocation { font-size: clamp(1.2rem, 4.8vw, 1.7rem); letter-spacing: 0.2em; }
 .beat--3 .label { font-size: clamp(1rem, 2.8vw, 1.5rem); letter-spacing: 0.5em; }
-.lotus { width: 72px; height: 36px; color: var(--white); filter: drop-shadow(0 2px 10px rgb(30 50 90 / 0.3)); }
+.lotus { width: 88px; height: 44px; color: var(--white); filter: drop-shadow(0 2px 10px rgb(30 50 90 / 0.3)); }
 .hint {
   position: absolute;
   bottom: 10svh;
@@ -286,7 +324,7 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 
 /* The details card */
 .beat--5 { gap: 0; text-shadow: none; }
-.rings { width: clamp(90px, 14vw, 130px); margin-bottom: -10px; position: relative; z-index: 1; filter: drop-shadow(0 6px 10px rgb(120 90 40 / 0.3)); }
+.rings { display: block; width: clamp(96px, 14vw, 132px); height: auto; margin-bottom: -18px; position: relative; z-index: 1; }
 .card {
   width: min(26rem, calc(100vw - 2.5rem));
   padding: 2rem 1.5rem 1.6rem;
@@ -333,11 +371,13 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 @media (prefers-reduced-motion: no-preference) {
   .cloud svg { animation: drift 16s var(--ease) infinite alternate; }
   .cloud--c svg, .cloud--b svg { animation-duration: 21s; animation-delay: -7s; }
-  .strand { transform-box: fill-box; transform-origin: 50% 0; animation: sway 4.6s var(--ease) infinite alternate; }
+  .strand { animation: sway 4.6s var(--ease) infinite alternate; }
   .flowers__side { animation: nod 6s var(--ease) infinite alternate; }
   .flowers__side--r { animation-delay: -3s; }
-  .wing--front { animation: flap 0.9s var(--ease) infinite alternate; }
-  .wing--back { animation: flap 0.9s var(--ease) -0.15s infinite alternate; }
+  .dove__art { animation: hover 3.2s var(--ease) infinite alternate; }
+  .dove--r .dove__art { animation-delay: -1.6s; }
+  .wing--near { animation: flap 1.5s var(--ease) infinite alternate; }
+  .wing--far { animation: flap 1.5s var(--ease) -0.12s infinite alternate; }
   .butterfly { animation: flutter 11s var(--ease) infinite alternate; }
   .butterfly--b { animation-duration: 13s; animation-delay: -5s; }
   .bwing--l, .bwing--r { animation: beat 0.22s var(--ease) infinite alternate; }
@@ -354,7 +394,8 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 @keyframes drift { to { translate: 22px 0; } }
 @keyframes sway { from { rotate: -2.5deg; } to { rotate: 2.5deg; } }
 @keyframes nod { from { rotate: -1.2deg; } to { rotate: 1.2deg; } }
-@keyframes flap { to { scale: 1 -0.35; } }
+@keyframes hover { to { translate: 0 -8px; } }
+@keyframes flap { from { rotate: 6deg; } to { rotate: -24deg; } }
 @keyframes beat { to { scale: 0.3 1; } }
 @keyframes flutter {
   0% { translate: 0 0; }
@@ -375,10 +416,9 @@ p, h1, h2 { margin: 0; font-weight: inherit; }
 
 /* Phones. Most guests open the link here, so this is the main layout. */
 @media (max-width: 600px) {
+  /* Shorter pillars, so the gate does not fill the whole phone screen. */
+  :root { --col-h: 62svh; }
   .edge { display: none; }
-  .beat { padding: 0 calc(50% - var(--half) + var(--col-w) / 2 + 0.4rem); }
-  .beat--1, .beat--5 { padding-inline: 1rem; }
-  .beat--1 { padding-top: 34svh; }
   .lead { font-size: 1.05rem; }
   .cloud--a { top: 8svh; }
   .cloud--b { top: 60svh; }

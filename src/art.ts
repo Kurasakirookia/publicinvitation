@@ -1,5 +1,5 @@
-// Draws the repeating illustration pieces (clouds, garland, flowers, doves,
-// butterflies) as SVG markup. A seeded random keeps every load identical.
+// Draws the repeating illustration pieces (clouds, mountains, garland,
+// flowers, doves, butterflies) as SVG markup. A seeded random keeps every load identical.
 
 type Draw = (seed: number) => string
 
@@ -99,17 +99,32 @@ function bud(x: number, y: number, r: number): string {
 
 const BELL = '<path d="M-6 0Q-6-11 0-11 6-11 6 0L8 3H-8Z" fill="url(#gold)"/><circle cy="5" r="2" fill="#9a7433"/>'
 
-// One hanging jasmine strand. The sway delay depends on x, so a breeze
-// reads as a wave travelling left to right.
+// Garland drawing units. The swag svg uses a 680 x 300 box.
+const GARLAND_W = 680
+const GARLAND_H = 300
+const STRAND_HALF = 14
+
+// One hanging jasmine strand as its own small svg layer, placed in % of the
+// garland box. Swaying a whole layer is cheap; swaying shapes inside one big
+// svg repaints every bud on every frame. The delay depends on x, so the
+// breeze reads as a wave travelling left to right.
 function strand(x: number, top: number, length: number, rand: () => number): string {
-  let parts = `<path d="M${x} ${top}V${top + length}" stroke="#7a8f63" stroke-width="1.2"/>`
-  for (let y = top + 6; y < top + length - 4; y += 8) {
-    parts += bud(x + (rand() - 0.5) * 5, y, 2.6 + rand())
-    if (rand() > 0.75) parts += leaf(x, y, 12, rand() > 0.5 ? 140 : -140, LEAF_GREENS[0])
+  const h = length + 16
+  let parts = `<path d="M0 0V${length}" stroke="#7a8f63" stroke-width="1.2"/>`
+  for (let y = 6; y < length - 4; y += 8) {
+    parts += bud((rand() - 0.5) * 5, y, 2.6 + rand())
+    if (rand() > 0.75) parts += leaf(0, y, 12, rand() > 0.5 ? 140 : -140, LEAF_GREENS[0])
   }
-  parts += `<g transform="translate(${x} ${top + length + 4})">${BELL}</g>`
-  const delay = round(-(x / 680) * 1.6)
-  return `<g class="strand" style="animation-delay:${delay}s">${parts}</g>`
+  parts += `<g transform="translate(0 ${length + 4})">${BELL}</g>`
+  const pct = (n: number, of: number) => round((n / of) * 100)
+  const style = [
+    `left:${pct(x - STRAND_HALF, GARLAND_W)}%`,
+    `top:${pct(top, GARLAND_H)}%`,
+    `width:${pct(STRAND_HALF * 2, GARLAND_W)}%`,
+    `height:${pct(h, GARLAND_H)}%`,
+    `animation-delay:${round(-(x / GARLAND_W) * 1.6)}s`,
+  ].join(';')
+  return `<svg class="strand" viewBox="${-STRAND_HALF} 0 ${STRAND_HALF * 2} ${h}" style="${style}">${parts}</svg>`
 }
 
 function garland(seed: number): string {
@@ -129,7 +144,8 @@ function garland(seed: number): string {
   const strands = [8, 672, 170, 510, 340]
     .map((x, i) => strand(x, i < 2 ? 18 : at(x / 680)[1] + 4, i < 2 ? 210 : i === 4 ? 80 : 110, rand))
     .join('')
-  return `<path d="M0 14Q340 190 680 14" stroke="#5f7d4c" stroke-width="3" fill="none"/>${strands}${leaves}${buds}`
+  // Strands first, so their tops tuck under the swag.
+  return `${strands}<svg class="garland__swag" viewBox="0 0 ${GARLAND_W} ${GARLAND_H}"><path d="M0 14Q340 190 680 14" stroke="#5f7d4c" stroke-width="3" fill="none"/>${leaves}${buds}</svg>`
 }
 
 function flower(x: number, y: number, size: number, rot: number): string {
@@ -156,13 +172,47 @@ function flowers(seed: number): string {
   return leaves + blooms
 }
 
+// One feather, drawn along +x from its base, then turned into place.
+function feather(x: number, y: number, len: number, w: number, angle: number, fill: string, rib = false): string {
+  // Soft, rounded tip: real flight feathers are not pointed.
+  const [a, b, c] = [round(len * 0.25), round(len * 0.8), round(len * 0.96)]
+  const shape = `<path d="M0 0C${a} ${-w} ${b} ${round(-w * 0.95)} ${c} ${round(-w * 0.45)}Q${len + 1} 0 ${c} ${round(w * 0.45)}C${b} ${round(w * 0.8)} ${a} ${round(w * 0.8)} 0 0Z" fill="url(#${fill})" stroke="#cfc8bd" stroke-width=".5"/>`
+  const line = rib ? `<path d="M3 0H${round(len * 0.85)}" stroke="#d9d2c6" stroke-width=".5"/>` : ''
+  return `<g transform="translate(${round(x)} ${round(y)}) rotate(${round(angle)})">${shape}${line}</g>`
+}
+
+// A raised wing: long flight feathers fanned from the shoulder, short
+// coverts over their roots. Back feathers first, so the front ones overlap.
+function wing(sx: number, sy: number, from: number, to: number, size: number, fill: string): string {
+  let flight = ''
+  let coverts = ''
+  for (let i = 9; i >= 0; i--) {
+    const t = i / 9
+    const angle = from + (to - from) * t
+    const len = size * (0.62 + 0.4 * Math.sin(Math.PI * (t * 0.8 + 0.15)))
+    flight += feather(sx - t * 26, sy + t * 4, round(len), 11, angle, fill, true)
+    if (i % 2 === 0) coverts += feather(sx - t * 16, sy + t * 3, round(size * 0.42), 12, angle + 5, fill)
+  }
+  return flight + coverts + `<ellipse cx="${sx - 6}" cy="${sy - 6}" rx="16" ry="9" transform="rotate(-35 ${sx - 6} ${sy - 6})" fill="url(#${fill})"/>`
+}
+
+// A dove in flight facing right, wings raised. Three stacked svg layers
+// share one 200 x 160 box: far wing, body, near wing. Each wing is its own
+// layer, so flapping moves a layer instead of repainting the bird.
+// Light comes from the upper right, so the underside is cool and the back warm.
 function dove(): string {
-  return `
-    <path class="wing wing--back" fill="#e4eaf2" d="M66 44C60 30 58 16 60 2 72 10 82 26 84 42Z"/>
-    <path fill="#fbfcfe" d="M8 50L22 46C34 42 52 40 70 42 84 43 94 38 102 33 108 29 116 30 118 35L126 36 118 39C114 46 100 56 80 58 60 60 40 58 26 54L6 60Z"/>
-    <path fill="#dde4ee" d="M30 54C50 58 70 58 88 54 80 60 60 62 40 59Z"/>
-    <circle cx="112" cy="34" r="1.5" fill="#3b3b44"/>
-    <g class="wing wing--front"><path fill="#fff" stroke="#dfe6ef" d="M58 44C50 30 44 16 38 2 56 8 72 22 80 42Z"/><path d="M50 28L62 34M45 17L57 25" stroke="#dfe6ef" fill="none"/></g>`
+  const layer = (cls: string, inner: string) => `<svg class="${cls}" viewBox="0 0 200 160">${inner}</svg>`
+  const tail = [0, 1, 2, 3, 4].map((k) => feather(46, 99, 42, 7, 166 + k * 6, 'feather', true)).join('')
+  const body = 'M186 72C184 62 174 55 163 56C152 57 146 64 138 69C120 78 92 82 64 88C52 91 44 94 38 97L40 104C60 108 84 112 108 110C132 108 152 100 166 90C176 84 183 79 186 76Z'
+  return layer('wing wing--far', wing(126, 70, -84, -122, 78, 'feather-shade')) + layer('dove__body', `
+    ${tail}
+    <path d="${body}" fill="url(#dove-body)"/>
+    <ellipse cx="150" cy="70" rx="30" ry="11" fill="url(#dove-glow)"/>
+    <ellipse cx="112" cy="84" rx="28" ry="8" fill="url(#dove-shade)"/>
+    <path d="M104 109q-2 6-6 9M112 109q0 6-3 10" stroke="#d4847a" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M185 70L198 74 185 78Z" fill="#e4a597"/><path d="M186 74H195" stroke="#c97f73" stroke-width=".6"/>
+    <circle cx="172" cy="66" r="2.6" fill="#2b2420"/><circle cx="172.8" cy="65.2" r=".8" fill="#fff"/>`) +
+    layer('wing wing--near', wing(112, 72, -98, -142, 92, 'feather'))
 }
 
 function butterfly(): string {
@@ -173,7 +223,7 @@ function butterfly(): string {
 const ART: Record<string, Draw> = { cloud, mtnFar, mtnMid, mtnNear, garland, flowers, dove, butterfly }
 
 export function paintArt(): void {
-  document.querySelectorAll<SVGElement>('[data-art]').forEach((el) => {
+  document.querySelectorAll<HTMLElement | SVGElement>('[data-art]').forEach((el) => {
     const name = el.dataset.art ?? ''
     const draw = ART[name]
     if (!draw) throw new Error(`Unknown art piece: "${name}"`)
