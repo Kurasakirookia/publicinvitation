@@ -23,12 +23,12 @@
   --font-serif: 'Bodoni Moda Variable', Georgia, serif;
 
   /* Gate geometry. Column centers sit at 50% ± --half. */
-  --col-w: clamp(56px, 11vw, 150px);
-  --half: min(40vw, 330px);
+  --col-w: clamp(46px, 11vw, 150px);
+  --half: min(42vw, 330px);
   --ledge: 9svh;
   --col-h: 74svh;
   --gate-top: calc(100svh - var(--ledge) - var(--col-h));
-  --dove-w: clamp(64px, 9vw, 120px);
+  --dove-w: clamp(80px, 9vw, 120px);
 
   --ease: cubic-bezier(0.45, 0, 0.55, 1);
 }
@@ -265,7 +265,7 @@ body::after {
 .names {
   max-width: calc(var(--half) * 2 - var(--col-w) - 1rem);
   font-style: italic;
-  font-size: clamp(1.9rem, 7.2vw, 3.9rem);
+  font-size: clamp(1.7rem, 6.8vw, 3.9rem);
   line-height: 1.05;
 }
 .name { display: block; white-space: nowrap; }
@@ -274,13 +274,16 @@ body::after {
 
 .beat--1 { align-content: start; padding-top: 30svh; }
 .beat--3 .label { font-size: clamp(1rem, 2.8vw, 1.5rem); letter-spacing: 0.5em; }
-.lotus { width: 56px; height: 28px; color: var(--white); }
+.lotus { width: 72px; height: 36px; color: var(--white); filter: drop-shadow(0 2px 10px rgb(30 50 90 / 0.3)); }
 .hint {
   position: absolute;
   bottom: 10svh;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #5b6f8f;
+  text-shadow: none;
 }
 .hint::after {
   content: '';
@@ -316,7 +319,7 @@ body::after {
 .card__venue { font-size: clamp(1.4rem, 5vw, 1.8rem); }
 .card__map {
   margin-top: 0.6rem;
-  padding: 0.7rem 1.4rem;
+  padding: 0.95rem 1.6rem;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 0.85rem;
@@ -376,4 +379,20 @@ body::after {
   0% { scale: 1 0; opacity: 1; }
   70% { scale: 1 1; opacity: 1; }
   100% { scale: 1 1; opacity: 0; }
+}
+
+/* Phones. Most guests open the link here, so this is the main layout. */
+@media (max-width: 600px) {
+  .edge { display: none; }
+  .beat { padding: 0 calc(50% - var(--half) + var(--col-w) / 2 + 0.4rem); }
+  .beat--1, .beat--5 { padding-inline: 1rem; }
+  .beat--1 { padding-top: 34svh; }
+  .lead { font-size: 1.05rem; }
+  .cloud--a { top: 8svh; }
+  .cloud--b { top: 60svh; }
+  .cloud--c { top: 15svh; }
+  .cloud--d { top: 48svh; }
+  .flowers__side { width: 64vw; }
+  .butterfly--a { left: 14vw; bottom: 24svh; }
+  .butterfly--b { right: 12vw; bottom: 18svh; }
 }
