@@ -1,0 +1,379 @@
+@import '@fontsource-variable/bodoni-moda/opsz';
+@import '@fontsource-variable/bodoni-moda/opsz-italic';
+@import '@fontsource-variable/big-shoulders-display/wght';
+@import 'lenis/dist/lenis.css';
+
+/* Tokens. Every color, font and size below comes from here. */
+:root {
+  --sky-1: #6e9ed4;
+  --sky-2: #a8c5e6;
+  --sky-3: #e6e1d8;
+  --sky-4: #f2dec3;
+  --stone-lit: #f1e6d2;
+  --stone: #d6c6ab;
+  --stone-shade: #a8957a;
+  --gold: #c9a35a;
+  --ink: #3e2e22;
+  --ink-soft: #6b5643;
+  --paper: rgb(255 250 240 / 0.84);
+  --white: #fff;
+  --text-shadow: 0 1px 2px rgb(30 50 90 / 0.3), 0 4px 28px rgb(30 50 90 / 0.4);
+
+  --font-display: 'Big Shoulders Display Variable', 'Arial Narrow', sans-serif;
+  --font-serif: 'Bodoni Moda Variable', Georgia, serif;
+
+  /* Gate geometry. Column centers sit at 50% ± --half. */
+  --col-w: clamp(56px, 11vw, 150px);
+  --half: min(40vw, 330px);
+  --ledge: 9svh;
+  --col-h: 74svh;
+  --gate-top: calc(100svh - var(--ledge) - var(--col-h));
+  --dove-w: clamp(64px, 9vw, 120px);
+
+  --ease: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--sky-2);
+  color: var(--white);
+  font-family: var(--font-serif);
+  -webkit-font-smoothing: antialiased;
+}
+
+p, h1, h2 { margin: 0; font-weight: inherit; }
+
+.sprite { position: absolute; width: 0; height: 0; }
+
+/* Paper grain over everything, so the vector art does not look plastic. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.sky, .clouds, .mountains, .warmth, .gate, .flowers, .petals, .frame, .beats { position: absolute; inset: 0; pointer-events: none; }
+.sun, .rays, .dove { position: absolute; pointer-events: none; }
+.beats { pointer-events: auto; }
+
+/* Sky and light */
+.sky {
+  background: linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 42%, var(--sky-3) 74%, var(--sky-4) 100%);
+}
+.sun {
+  top: -6vmin;
+  right: -4vmin;
+  width: 46vmin;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffdf6 0 14%, rgb(255 240 205 / 0.85) 22%, rgb(255 226 180 / 0.35) 42%, transparent 70%);
+}
+/* Sun rays, centered on the sun. */
+.rays {
+  top: calc(17vmin - 80vmax);
+  right: calc(19vmin - 80vmax);
+  width: 160vmax;
+  aspect-ratio: 1;
+  background: repeating-conic-gradient(rgb(255 238 205 / 0.3) 0deg 3deg, transparent 3deg 11deg);
+  mask-image: radial-gradient(circle, #000 0, transparent 55%);
+  filter: blur(6px);
+  opacity: 0.7;
+}
+.warmth {
+  background: radial-gradient(ellipse at 85% 5%, rgb(255 205 150 / 0.6), transparent 60%);
+  mix-blend-mode: soft-light;
+  opacity: 0.5;
+}
+
+/* Clouds */
+.cloud { position: absolute; width: clamp(250px, 42vw, 620px); }
+.cloud svg { display: block; width: 100%; height: auto; overflow: visible; }
+.cloud--a { left: -16vw; top: 18svh; }
+.cloud--b { left: -20vw; top: 42svh; width: clamp(150px, 30vw, 440px); }
+.cloud--c { right: -18vw; top: 10svh; }
+.cloud--d { right: -14vw; top: 34svh; width: clamp(150px, 28vw, 420px); }
+
+/* Mountains */
+/* Never narrower than this, so phones do not squeeze the peaks into spikes. */
+.mtn { position: absolute; --w: max(104vw, 150svh); width: var(--w); left: calc((100vw - var(--w)) / 2); bottom: 0; }
+.mtn--far { height: 54svh; }
+.mtn--mid { height: 46svh; }
+.mtn--near { height: 30svh; }
+
+/* The gate */
+.gate { transform-origin: 50% 58%; }
+.ledge {
+  position: absolute;
+  left: -5%;
+  right: -5%;
+  bottom: 0;
+  height: var(--ledge);
+  background: linear-gradient(180deg, var(--stone-lit) 0, var(--stone) 14%, #c4b294 55%, var(--stone-shade) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
+}
+.ledge::before {
+  content: '';
+  position: absolute;
+  inset: 42% 0 auto;
+  height: 1px;
+  background: rgb(90 70 50 / 0.25);
+}
+.column {
+  position: absolute;
+  bottom: var(--ledge);
+  width: var(--col-w);
+  height: var(--col-h);
+  display: flex;
+  flex-direction: column;
+  filter: drop-shadow(-10px 12px 16px rgb(60 50 40 / 0.2));
+}
+.column--l { left: calc(50% - var(--half) - var(--col-w) / 2); }
+.column--r { right: calc(50% - var(--half) - var(--col-w) / 2); }
+.capital { display: block; width: 100%; height: calc(var(--col-w) * 50 / 120); }
+.base { display: block; width: 100%; height: calc(var(--col-w) * 40 / 120); }
+.shaft {
+  flex: 1;
+  margin: 0 12%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 7%, rgb(90 70 50 / 0.16) 7% 8.5%, rgb(255 255 255 / 0.14) 8.5% 10%),
+    linear-gradient(90deg, #a8947a 0%, #cdbb9f 30%, #efe3cd 72%, #fbf4e6 88%, #e4d6bd 100%);
+}
+.garland {
+  position: absolute;
+  left: calc(50% - var(--half));
+  width: calc(var(--half) * 2);
+  top: calc(var(--gate-top) - 4px);
+  height: auto;
+  overflow: visible;
+}
+
+/* Doves */
+.dove { top: calc(var(--gate-top) - var(--dove-w) * 0.9); width: var(--dove-w); }
+.dove svg { display: block; width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 6px 8px rgb(60 80 110 / 0.18)); }
+.dove--l { left: calc(50% - var(--dove-w) - 4px); }
+.dove--r { left: calc(50% + 4px); }
+.dove--r svg { transform: scaleX(-1); }
+.wing { transform-box: fill-box; transform-origin: 70% 100%; }
+
+/* Foreground flowers */
+.flowers__side { position: absolute; bottom: -2svh; width: clamp(220px, 42vw, 560px); height: auto; overflow: visible; }
+.flowers__side--l { left: -4vw; }
+.flowers__side--r { right: -4vw; transform: scaleX(-1); }
+.bloom { transform-box: fill-box; transform-origin: 50% 100%; }
+.butterfly { position: absolute; width: clamp(22px, 3vw, 36px); }
+.butterfly svg { display: block; width: 100%; height: auto; overflow: visible; }
+.butterfly--a { left: 22vw; bottom: 30svh; }
+.butterfly--b { right: 18vw; bottom: 22svh; }
+.bwing--l { transform-box: fill-box; transform-origin: 100% 50%; }
+.bwing--r { transform-box: fill-box; transform-origin: 0% 50%; }
+
+/* Falling petals */
+.petals i {
+  position: absolute;
+  top: -4svh;
+  width: 9px;
+  height: 13px;
+  border-radius: 80% 0;
+  background: radial-gradient(circle at 30% 30%, #fff, #f3ead6);
+  opacity: 0;
+}
+.petals i:nth-child(1) { left: 12%; animation-delay: 0s; }
+.petals i:nth-child(2) { left: 34%; animation-delay: -4s; }
+.petals i:nth-child(3) { left: 52%; animation-delay: -9s; }
+.petals i:nth-child(4) { left: 68%; animation-delay: -2s; }
+.petals i:nth-child(5) { left: 84%; animation-delay: -12s; }
+.petals i:nth-child(6) { left: 96%; animation-delay: -6s; }
+
+/* Editorial frame, after the two reference posters */
+.frame::before, .frame::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgb(255 255 255 / 0.35);
+}
+.frame::before { top: 7svh; }
+.frame::after { bottom: 7svh; }
+.frame__star { position: absolute; width: 14px; height: 14px; color: var(--white); opacity: 0.8; }
+.frame__star--tl { top: calc(7svh - 7px); left: 5vw; }
+.frame__star--br { bottom: calc(7svh - 7px); right: 5vw; }
+.edge {
+  position: absolute;
+  top: 50%;
+  writing-mode: vertical-rl;
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: 0.72rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+.edge--l { left: 1.2vw; transform: translateY(-50%) rotate(180deg); }
+.edge--r { right: 1.2vw; transform: translateY(-50%); }
+
+/* Words */
+.beat {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.6rem;
+  padding: 0 1rem;
+  text-align: center;
+  text-shadow: var(--text-shadow);
+}
+.js .reveal { visibility: hidden; opacity: 0; }
+
+.label {
+  font-family: var(--font-display);
+  font-weight: 450;
+  font-size: clamp(0.9rem, 2.2vw, 1.1rem);
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+}
+.lead { font-style: italic; font-weight: 500; font-size: clamp(1.15rem, 3.6vw, 1.7rem); }
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(3.4rem, 14vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.line {
+  font-family: var(--font-display);
+  font-weight: 300;
+  font-size: clamp(2.8rem, 12vw, 7.5rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+.names {
+  max-width: calc(var(--half) * 2 - var(--col-w) - 1rem);
+  font-style: italic;
+  font-size: clamp(1.9rem, 7.2vw, 3.9rem);
+  line-height: 1.05;
+}
+.name { display: block; white-space: nowrap; }
+.beat--4 { padding-top: 14svh; }
+.amp { display: block; font-size: 0.55em; margin: 0.2em 0; }
+
+.beat--1 { align-content: start; padding-top: 30svh; }
+.beat--3 .label { font-size: clamp(1rem, 2.8vw, 1.5rem); letter-spacing: 0.5em; }
+.lotus { width: 56px; height: 28px; color: var(--white); }
+.hint {
+  position: absolute;
+  bottom: 10svh;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+}
+.hint::after {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 36px;
+  margin: 0.6rem auto 0;
+  background: currentColor;
+  transform-origin: top;
+}
+
+/* The details card */
+.beat--5 { gap: 0; text-shadow: none; }
+.rings { width: clamp(90px, 14vw, 130px); margin-bottom: -10px; position: relative; z-index: 1; filter: drop-shadow(0 6px 10px rgb(120 90 40 / 0.3)); }
+.card {
+  width: min(26rem, calc(100vw - 2.5rem));
+  padding: 2rem 1.5rem 1.6rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  color: var(--ink);
+  background: var(--paper);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgb(201 163 90 / 0.55);
+  outline: 1px solid rgb(201 163 90 / 0.35);
+  outline-offset: -8px;
+}
+.card .label { color: var(--ink-soft); }
+.card__date { font-size: clamp(1.6rem, 6vw, 2.1rem); }
+.card__date sup { font-size: 0.45em; }
+.card__time { font-style: italic; font-size: 1.1rem; color: var(--ink-soft); }
+.card__lotus { width: 40px; height: 20px; margin: 0.6rem 0 0.3rem; color: var(--gold); }
+.card__venue { font-size: clamp(1.4rem, 5vw, 1.8rem); }
+.card__map {
+  margin-top: 0.6rem;
+  padding: 0.7rem 1.4rem;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--ink);
+  text-decoration: none;
+  border: 1px solid var(--gold);
+  transition: background-color 0.3s var(--ease), color 0.3s var(--ease);
+}
+.card__map:hover, .card__map:focus-visible { background: var(--gold); color: var(--white); }
+.card__map:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.card__blessing {
+  margin-top: 1rem;
+  max-width: 20rem;
+  font-style: italic;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
+}
+
+/* Ambient motion. Small, slow, and off when the visitor asks for less motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .rays { animation: spin 180s linear infinite; }
+  .cloud svg { animation: drift 16s var(--ease) infinite alternate; }
+  .cloud--c svg, .cloud--b svg { animation-duration: 21s; animation-delay: -7s; }
+  .strand { transform-box: fill-box; transform-origin: 50% 0; animation: sway 4.6s var(--ease) infinite alternate; }
+  .bloom { animation: nod 5.4s var(--ease) infinite alternate; }
+  .wing--front { animation: flap 0.9s var(--ease) infinite alternate; }
+  .wing--back { animation: flap 0.9s var(--ease) -0.15s infinite alternate; }
+  .butterfly { animation: flutter 11s var(--ease) infinite alternate; }
+  .butterfly--b { animation-duration: 13s; animation-delay: -5s; }
+  .bwing--l, .bwing--r { animation: beat 0.22s var(--ease) infinite alternate; }
+  .petals i { animation: fall 16s linear infinite; }
+  .petals i:nth-child(even) { animation-duration: 20s; }
+  .hint::after { animation: pulse 2.4s var(--ease) infinite; }
+}
+
+@keyframes spin { to { rotate: 360deg; } }
+@keyframes drift { to { translate: 22px 0; } }
+@keyframes sway { from { rotate: -2.5deg; } to { rotate: 2.5deg; } }
+@keyframes nod { from { rotate: -2deg; } to { rotate: 2deg; } }
+@keyframes flap { to { scale: 1 -0.35; } }
+@keyframes beat { to { scale: 0.3 1; } }
+@keyframes flutter {
+  0% { translate: 0 0; }
+  50% { translate: 40px -30px; }
+  100% { translate: -20px -60px; }
+}
+@keyframes fall {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg); }
+  8% { opacity: 0.9; }
+  90% { opacity: 0.9; }
+  100% { opacity: 0; transform: translate(-14vw, 110svh) rotate(540deg); }
+}
+@keyframes pulse {
+  0% { scale: 1 0; opacity: 1; }
+  70% { scale: 1 1; opacity: 1; }
+  100% { scale: 1 1; opacity: 0; }
+}
